@@ -28,3 +28,27 @@ data class Card(
     var numberOfWins: Int,
     var numberOfRepetitions: Int
 )
+
+data class Result(
+    val seed: Int,
+    val soil: Int,
+    val fertilizer: Int,
+    val water: Int,
+    val light: Int,
+    val temperature: Int,
+    val humidity: Int,
+    val location: Int,
+)
+
+data class RangeMaps(
+    val destination: Int,
+    val source: Int,
+    val range: Int
+)
+
+data class RangeMaps2(
+    val destinationStart: Int,
+    val destinationEnd: Int,
+    val sourceStart: Int,
+    val sourceEnd: Int
+)
