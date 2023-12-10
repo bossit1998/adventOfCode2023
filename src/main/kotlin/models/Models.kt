@@ -52,3 +52,11 @@ data class RangeMaps2(
     val sourceStart: Int,
     val sourceEnd: Int
 )
+
+data class Tile(
+    val sign: Char,
+    val x: Int,
+    val y: Int,
+    val order: Int,
+    val isStartTile: Boolean
+)

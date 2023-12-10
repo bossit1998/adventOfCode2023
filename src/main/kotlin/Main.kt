@@ -2,6 +2,7 @@ package uz.uztelecom
 
 import uz.uztelecom.models.Card
 import uz.uztelecom.models.Node
+import uz.uztelecom.models.Tile
 import uz.uztelecom.utils.getFile
 import uz.uztelecom.utils.parseDay21
 import uz.uztelecom.utils.parseDay41
@@ -15,7 +16,8 @@ fun main(args: Array<String>) {
 //    solveDay31()
 //    solveDay32()
 //    solveDay41()
-    solveDay51()
+//    solveDay51()
+    solveDay101()
 }
 
 // Everything after this is in red
@@ -26,22 +28,217 @@ val reset = "\u001b[0m"
 
 val dot = '.'
 
+private fun solveDay102() {
+/*from collections import deque
+
+grid = open(0).read().strip().splitlines()
+
+for r, row in enumerate(grid):
+    for c, ch in enumerate(row):
+        if ch == "S":
+            sr = r
+            sc = c
+            break
+    else:
+        continue
+    break
+
+loop = {(sr, sc)}
+q = deque([(sr, sc)])
+
+maybe_s = {"|", "-", "J", "L", "7", "F"}
+
+while q:
+    r, c = q.popleft()
+    ch = grid[r][c]
+
+    if r > 0 and ch in "S|JL" and grid[r - 1][c] in "|7F" and (r - 1, c) not in loop:
+        loop.add((r - 1, c))
+        q.append((r - 1, c))
+        if ch == "S":
+            maybe_s &= {"|", "J", "L"}
+
+    if r < len(grid) - 1 and ch in "S|7F" and grid[r + 1][c] in "|JL" and (r + 1, c) not in loop:
+        loop.add((r + 1, c))
+        q.append((r + 1, c))
+        if ch == "S":
+            maybe_s &= {"|", "7", "F"}
+
+    if c > 0 and ch in "S-J7" and grid[r][c - 1] in "-LF" and (r, c - 1) not in loop:
+        loop.add((r, c - 1))
+        q.append((r, c - 1))
+        if ch == "S":
+            maybe_s &= {"-", "J", "7"}
+
+    if c < len(grid[r]) - 1 and ch in "S-LF" and grid[r][c + 1] in "-J7" and (r, c + 1) not in loop:
+        loop.add((r, c + 1))
+        q.append((r, c + 1))
+        if ch == "S":
+            maybe_s &= {"-", "L", "F"}
+
+assert len(maybe_s) == 1
+(S,) = maybe_s
+
+grid = [row.replace("S", S) for row in grid]
+grid = ["".join(ch if (r, c) in loop else "." for c, ch in enumerate(row)) for r, row in enumerate(grid)]
+
+outside = set()
+
+for r, row in enumerate(grid):
+    within = False
+    up = None
+    for c, ch in enumerate(row):
+        if ch == "|":
+            assert up is None
+            within = not within
+        elif ch == "-":
+            assert up is not None
+        elif ch in "LF":
+            assert up is None
+            up = ch == "L"
+        elif ch in "7J":
+            assert up is not None
+            if ch != ("J" if up else "7"):
+                within = not within
+            up = None
+        elif ch == ".":
+            pass
+        else:
+            raise RuntimeError(f"unexpected character (horizontal): {ch}")
+        if not within:
+            outside.add((r, c))
+
+print(len(grid) * len(grid[0]) - len(outside | loop))*/
+}
+
+private fun solveDay101() {
+    val input = getFile("day10_1.txt")
+
+    val matrixOfTiles = mutableListOf(mutableListOf<Tile>())
+    var startX = 0
+    var startY = 0
+
+    var yLength = 0
+    input.map { line ->
+        var xLength = 0
+
+        val matrixLine = mutableListOf<Tile>()
+
+        line.map { char ->
+            var isStartTile = false
+            if (char == 'S') {
+                isStartTile = true
+                startX = xLength
+                startY = yLength
+            }
+
+            matrixLine.add(Tile(char, xLength, yLength, 0, isStartTile))
+
+            xLength++
+        }
+        matrixOfTiles.add(matrixLine)
+        yLength++
+    }
+
+    println(matrixOfTiles)
+    println(startX)
+    println(startY)
+
+/*
+* from collections import deque
+
+grid = open(0).read().strip().splitlines()
+
+for r, row in enumerate(grid):
+    for c, ch in enumerate(row):
+        if ch == "S":
+            sr = r
+            sc = c
+            break
+    else:
+        continue
+    break
+
+loop = {(sr, sc)}
+q = deque([(sr, sc)])
+
+while q:
+    r, c = q.popleft()
+    ch = grid[r][c]
+
+    if r > 0 and ch in "S|JL" and grid[r - 1][c] in "|7F" and (r - 1, c) not in loop:
+        loop.add((r - 1, c))
+        q.append((r - 1, c))
+
+    if r < len(grid) - 1 and ch in "S|7F" and grid[r + 1][c] in "|JL" and (r + 1, c) not in loop:
+        loop.add((r + 1, c))
+        q.append((r + 1, c))
+
+    if c > 0 and ch in "S-J7" and grid[r][c - 1] in "-LF" and (r, c - 1) not in loop:
+        loop.add((r, c - 1))
+        q.append((r, c - 1))
+
+    if c < len(grid[r]) - 1 and ch in "S-LF" and grid[r][c + 1] in "-J7" and (r, c + 1) not in loop:
+        loop.add((r, c + 1))
+        q.append((r, c + 1))
+
+print(len(loop) // 2)*/
+}
+
+private fun solvePuzzle(char: Char, xIndex: Int, yIndex: Int, order: Int) {
+    var nextX1: Int
+    var nextY1: Int
+    var nextX2: Int
+    var nextY2: Int
+
+    if (char == '|') {
+        nextX1 = xIndex - 1
+        nextY1 = yIndex
+        nextX2 = xIndex + 1
+        nextY2 = yIndex
+    } else if (char == '-') {
+        nextX1 = xIndex
+        nextY1 = yIndex - 1
+        nextX2 = xIndex
+        nextY2 = yIndex + 1
+    } else if (char == 'L') {
+
+    } else if (char == 'J') {
+
+    } else if (char == '7') {
+
+    } else if (char == 'F') {
+
+    } else if (char == '.') {
+
+    }
+
+//    | is a vertical pipe connecting north and south.
+//    - is a horizontal pipe connecting east and west.
+//    L is a 90-degree bend connecting north and east.
+//    J is a 90-degree bend connecting north and west.
+//    7 is a 90-degree bend connecting south and west.
+//    F is a 90-degree bend connecting south and east.
+//    . is ground; there is no pipe in this tile.
+//    S
+}
+
 private fun solveDay91() {
-/*def extrapolate(array):
-    if all(x == 0 for x in array):
-        return 0
+    /*def extrapolate(array):
+        if all(x == 0 for x in array):
+            return 0
 
-    deltas = [y - x for x, y in zip(array, array[1:])]
-    diff = extrapolate(deltas)
-    return array[-1] + diff
+        deltas = [y - x for x, y in zip(array, array[1:])]
+        diff = extrapolate(deltas)
+        return array[-1] + diff
 
-total = 0
+    total = 0
 
-for line in open(0):
-    nums = list(map(int, line.split()))
-    total += extrapolate(nums)
+    for line in open(0):
+        nums = list(map(int, line.split()))
+        total += extrapolate(nums)
 
-print(total)*/
+    print(total)*/
 }
 
 private fun solveDay82() {
@@ -112,102 +309,102 @@ print(step_count)*/
 }
 
 private fun solveDay72() {
-/*letter_map = {"T": "A", "J": ".", "Q": "C", "K": "D", "A": "E"}
+    /*letter_map = {"T": "A", "J": ".", "Q": "C", "K": "D", "A": "E"}
 
 
-def score(hand):
-    counts = [hand.count(card) for card in hand]
+    def score(hand):
+        counts = [hand.count(card) for card in hand]
 
-    if 5 in counts:
-        return 6
-    if 4 in counts:
-        return 5
-    if 3 in counts:
+        if 5 in counts:
+            return 6
+        if 4 in counts:
+            return 5
+        if 3 in counts:
+            if 2 in counts:
+                return 4
+            return 3
+        if counts.count(2) == 4:
+            return 2
         if 2 in counts:
-            return 4
-        return 3
-    if counts.count(2) == 4:
-        return 2
-    if 2 in counts:
-        return 1
-    return 0
+            return 1
+        return 0
 
 
-def replacements(hand):
-    if hand == "":
-        return [""]
+    def replacements(hand):
+        if hand == "":
+            return [""]
 
-    return [
-        x + y
-        for x in ("23456789TQKA" if hand[0] == "J" else hand[0])
-        for y in replacements(hand[1:])
-    ]
-
-
-def classify(hand):
-    return max(map(score, replacements(hand)))
+        return [
+            x + y
+            for x in ("23456789TQKA" if hand[0] == "J" else hand[0])
+            for y in replacements(hand[1:])
+        ]
 
 
-def strength(hand):
-    return (classify(hand), [letter_map.get(card, card) for card in hand])
+    def classify(hand):
+        return max(map(score, replacements(hand)))
 
 
-plays = []
+    def strength(hand):
+        return (classify(hand), [letter_map.get(card, card) for card in hand])
 
-for line in open(0):
-    hand, bid = line.split()
-    plays.append((hand, int(bid)))
 
-plays.sort(key=lambda play: strength(play[0]))
+    plays = []
 
-total = 0
+    for line in open(0):
+        hand, bid = line.split()
+        plays.append((hand, int(bid)))
 
-for rank, (hand, bid) in enumerate(plays, 1):
-    total += rank * bid
+    plays.sort(key=lambda play: strength(play[0]))
 
-print(total)*/
+    total = 0
+
+    for rank, (hand, bid) in enumerate(plays, 1):
+        total += rank * bid
+
+    print(total)*/
 }
 
 private fun solveDay71() {
-/*letter_map = {"T": "A", "J": "B", "Q": "C", "K": "D", "A": "E"}
+    /*letter_map = {"T": "A", "J": "B", "Q": "C", "K": "D", "A": "E"}
 
 
-def classify(hand):
-    counts = [hand.count(card) for card in hand]
+    def classify(hand):
+        counts = [hand.count(card) for card in hand]
 
-    if 5 in counts:
-        return 6
-    if 4 in counts:
-        return 5
-    if 3 in counts:
+        if 5 in counts:
+            return 6
+        if 4 in counts:
+            return 5
+        if 3 in counts:
+            if 2 in counts:
+                return 4
+            return 3
+        if counts.count(2) == 4:
+            return 2
         if 2 in counts:
-            return 4
-        return 3
-    if counts.count(2) == 4:
-        return 2
-    if 2 in counts:
-        return 1
-    return 0
+            return 1
+        return 0
 
 
-def strength(hand):
-    return (classify(hand), [letter_map.get(card, card) for card in hand])
+    def strength(hand):
+        return (classify(hand), [letter_map.get(card, card) for card in hand])
 
 
-plays = []
+    plays = []
 
-for line in open(0):
-    hand, bid = line.split()
-    plays.append((hand, int(bid)))
+    for line in open(0):
+        hand, bid = line.split()
+        plays.append((hand, int(bid)))
 
-plays.sort(key=lambda play: strength(play[0]))
+    plays.sort(key=lambda play: strength(play[0]))
 
-total = 0
+    total = 0
 
-for rank, (hand, bid) in enumerate(plays, 1):
-    total += rank * bid
+    for rank, (hand, bid) in enumerate(plays, 1):
+        total += rank * bid
 
-print(total)*/
+    print(total)*/
 }
 
 private fun solveDay61() {
@@ -223,7 +420,6 @@ private fun solveDay61() {
     n *= margin
 
     print(n)*/
-
 
 
     /*import sys
@@ -282,6 +478,7 @@ for i in range(len(times)):
 print(ans)
 print(f(T,D))*/
 }
+
 private fun solveDay51() {
     val input = getFile("day5_1.txt")
 
